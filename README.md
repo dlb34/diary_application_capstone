@@ -1,6 +1,6 @@
 # Serverless diary
 
-Hello Udacity Mentor, i created a diary app where users can enter diary entries.
+Hello Udacity Mentor, thank you for taking the time to review my project. I created a diary app where users can enter diary entries.
 
 # Functionality of the application
 
@@ -28,7 +28,7 @@ I know it wasnt part of the rubric for this project option but thought id implem
 
 # Future improvements
 1. Make tickbox feature advertised better for its use
-2. have the deployment proccess (including frontend) automated via travis CI. 
+2. have the full deployment proccess (including frontend) automated via travis CI. (as currently fetching apiId from travis then running frontend isnt best process)
 
 
 Thank you!!
