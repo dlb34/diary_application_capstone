@@ -17,7 +17,7 @@ I know it wasnt part of the rubric for this project option but thought id implem
 # Notes on deployment steps
 1. push changes 
 2. Then travis will run the steps automatically to sls deploy or you can do manually:
-- cd project-5/backend
+- cd backend
 - npm update --save
 - npm audit fix
 - sls deploy --verbose --aws-profile serverless
