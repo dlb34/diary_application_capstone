@@ -2,6 +2,9 @@
 
 Hello Udacity Mentor, thank you for taking the time to review my project. I created a diary app where users can enter diary entries.
 
+![Alt Text](image.png)
+
+
 # Functionality of the application
 
 Get - Fetches diarys I have implemented ordering so that the oldest creation date always appears first
