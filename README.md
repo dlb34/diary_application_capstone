@@ -24,8 +24,8 @@ I know it wasnt part of the rubric for this project option but thought id implem
 2. grab endpoint from travis CI or manual deployment and enter into apiId in: client -> config
 3. in client folder run 'npm run start' and app will open
 
-# Screenshots of successes can be seen in project-5/screenshots
-
+# Screenshots of successes can be seen in screenshots
+/screenshots includes - cloudformation stack, diary app homepage with it used, serverless app, successful sls deploy, travis ci success
 # Future improvements
 1. Make tickbox feature advertised better for its use
 2. have the full deployment proccess (including frontend) automated via travis CI. (as currently fetching apiId from travis then running frontend isnt best process)
