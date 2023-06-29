@@ -1,0 +1,22 @@
+language: node_js
+
+branches:
+  only:
+    - master
+
+node_js:
+  - "12"
+
+before_install:
+  - cd backend  
+  - npm install -g serverless@3.32.2
+  - export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+  - export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+  - export AWS_REGION=${AWS_REGION}
+  - npm update --save
+  - npm audit fix
+  - serverless config credentials --provider aws --key ${AWS_ACCESS_KEY_ID} --secret ${AWS_SECRET_ACCESS_KEY} --profile personal
+
+script:
+  - export NODE_OPTIONS=--max_old_space_size=8200
+  - serverless deploy --verbose --aws-profile personal
