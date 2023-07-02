@@ -5,7 +5,7 @@ import { cors, httpErrorHandler } from 'middy/middlewares'
 import { CreateDiaryRequest } from '../../requests/CreateDiaryRequest'
 import { getUserId } from '../utils';
 import { createDiary } from '../../businessLogic/diarys'
-import { publishToSns } from '../../utils/snsUtils'
+import { messagePublishSns } from '../../utils/snsUtils'
 
 // create diary item, extracting userId from requested event and returns response of the new item
 export const handler = middy(
@@ -17,7 +17,7 @@ export const handler = middy(
     const userId = getUserId(event);
     const newItem = await createDiary(newDiaryEntry, userId);
 
-    publishToSns('Diary Entry: '+ newItem.name);
+    messagePublishSns('Diary Entry: '+ newItem.name);
 
     // return response with newItem
     return {
