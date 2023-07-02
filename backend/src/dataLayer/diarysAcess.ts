@@ -3,6 +3,8 @@ const AWSXRay = require('aws-xray-sdk')
 import { createLogger } from '../utils/logger';
 import { diaryItem } from '../models/DiaryItem';
 import { diaryUpdate } from '../models/DiaryUpdate';
+import { customEncodeKey } from '../lambda/utils';
+import { GetDiarysResponse } from '../models/GetDiarysResponse';
 
 const XAWS = AWSXRay.captureAWS(AWS);
 const docClient = new XAWS.DynamoDB.DocumentClient();
@@ -15,21 +17,36 @@ export class diarysAccess {
         private readonly diarysTable = process.env.DIARYS_TABLE
     ) { }
     
-    async getDiarysForUser(userId: string): Promise<diaryItem[]> {
+    async getDiarysForUser(userId: string, nextKey: any, limit: number, orderBy: string): Promise<GetDiarysResponse> {
+          // Determine the index name based on the orderBy parameter
+         let indexName = process.env.DIARYS_CREATED_AT_INDEX;
+         if (!!orderBy && orderBy === "dueDate") {
+             indexName = process.env.DIARYS_DUE_DATE_INDEX; 
+         }
+
         myLogger.debug('called getdiarys function');
         const tableName = this.diarysTable
-
+        
+         // Set the parameters for the DynamoDB query - index name now included
         const params = {
             TableName: tableName,
+            IndexName: indexName,
             KeyConditionExpression: 'userId = :userId',
             ExpressionAttributeValues: {
                 ':userId': userId
             },
+            Limit: limit,
             ScanIndexForward: false,
+            ExclusiveStartKey: nextKey
         };
-  
+        
+        // Perform the DynamoDB query and await the result
         const result = await docClient.query(params).promise();
-        return result.Items as diaryItem[];
+        // Prepare the response object with queried items and encoded next key
+        return { 
+            items: result.Items as diaryItem[],
+            nextKey: customEncodeKey(result.LastEvaluatedKey)
+        } as GetDiarysResponse;
     }
     
     async createDiary(diaryItem: diaryItem): Promise<diaryItem> {

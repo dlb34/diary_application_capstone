@@ -18,6 +18,7 @@ provider:
 
   stage: ${opt:stage, 'dev'}
   region: ${opt:region, 'us-east-1'}
+  accountId: ${opt:accountId, '699456358783'}
 
   tracing:
     lambda: true
@@ -26,8 +27,11 @@ provider:
   environment:
     DIARYS_TABLE: diarys-${self:provider.stage}
     DIARYS_CREATED_AT_INDEX: CreatedAtIndex
+    DIARYS_DUE_DATE_INDEX: DueDateIndex
     ATTACHMENT_S3_BUCKET: serverless-app-diary-images-dlb342${self:provider.stage}
     SIGNED_URL_EXPIRATION: 300
+    SNS_TOPIC: serverless-diary-topic
+    SNS_TOPIC_ARN: arn:aws:sns:${self:provider.region}:${self:provider.accountId}:serverless-diary-topic
 
   logs:
     restApi: true
@@ -90,6 +94,11 @@ functions:
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.DIARYS_TABLE}
       - Effect: Allow
         Action:
+          - dynamodb:GetItem
+          - dynamodb:Query
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.DIARYS_TABLE}/index/*
+      - Effect: Allow
+        Action:
           - xray:PutTraceSegments
           - xray:PutTelemetryRecords
         Resource: 
@@ -121,6 +130,10 @@ functions:
           - xray:PutTelemetryRecords
         Resource: 
           - '*'
+      - Effect: Allow
+        Action:
+          - SNS:Publish
+        Resource: arn:aws:sns:${self:provider.region}:${self:provider.accountId}:serverless-diary-topic
 
   UpdateDiary:
     handler: src/lambda/http/updateDiary.handler
@@ -195,6 +208,20 @@ functions:
         Resource: 
           - '*'
 
+  SnsEmailHAndler:
+    handler: src/lambda/http/snsEmailHandler.handler
+    events:
+      - http:
+          method: post
+          path: email
+          cors: true
+          authorizer: Auth
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - SNS:Subscribe
+        Resource: arn:aws:sns:${self:provider.region}:${self:provider.accountId}:serverless-diary-topic
+
 resources:
   Resources:
     GatewayResponseDefault4XX:
@@ -238,6 +265,8 @@ resources:
             AttributeType: S
           - AttributeName: createdAt
             AttributeType: S
+          - AttributeName: dueDate
+            AttributeType: S
         KeySchema:
           - AttributeName: userId
             KeyType: HASH
@@ -254,6 +283,14 @@ resources:
                 KeyType: RANGE
             Projection:
               ProjectionType: ALL 
+          - IndexName: ${self:provider.environment.DIARYS_DUE_DATE_INDEX}
+            KeySchema:
+              - AttributeName: userId
+                KeyType: HASH
+              - AttributeName: dueDate
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
 
     AttachmentsBucket:
       Type: AWS::S3::Bucket
@@ -291,3 +328,8 @@ resources:
               Action: 's3:GetObject'
               Resource: 'arn:aws:s3:::${self:provider.environment.ATTACHMENT_S3_BUCKET}/*'
         Bucket: !Ref AttachmentsBucket
+
+    SnsTopic:
+        Type: AWS::SNS::Topic
+        Properties:
+          TopicName: serverless-diary-topic

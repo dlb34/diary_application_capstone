@@ -5,6 +5,7 @@ import { CreateDiaryRequest } from '../requests/CreateDiaryRequest';
 import { UpdateDiaryRequest } from '../requests/UpdateDiaryRequest';
 import { createLogger } from '../utils/logger';
 import * as uuid from 'uuid'
+import { GetDiarysResponse } from '../models/GetDiarysResponse';
 
 const myLogger = createLogger("diarys");
 const diaryAccess = new diarysAccess();
@@ -36,9 +37,9 @@ export async function createDiary(creatediaryRequest: CreateDiaryRequest, userId
     return await diaryAccess.createDiary(newItem);
 }
 
-export async function getDiarys(userId: string): Promise<any> {
+export async function getDiarys(userId: string, nextKey: any, limit: number, orderBy: string): Promise<GetDiarysResponse> {
     myLogger.info("called getdiarys function");
-    return await diaryAccess.getDiarysForUser(userId);
+    return await diaryAccess.getDiarysForUser(userId, nextKey, limit, orderBy);
 }
 
 export async function deleteDiary(diaryId: string, userId: string) {
