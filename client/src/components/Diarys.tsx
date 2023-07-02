@@ -225,7 +225,6 @@ export class Diarys extends React.PureComponent<DiarysProps, DiarysState> {
               content: 'Email Sign Up: ',
               onClick: this.onCreateEmail
             }}
-            
             actionPosition="left"
             placeholder="Enter email here to receive notifications..."
             onChange={this.handleEmailChange}
